@@ -25,7 +25,7 @@
 			var bodies = this.bodies
 			var notCollidingWithAnything = function(b1){
 				return bodies.filter(function(b2) 
-					{return colliding(b1,b2).length === 0;})
+					{return colliding(b1,b2);}).length === 0;
 			};
 			this.bodies = this.bodies.filter(notCollidingWithAnything)
 
@@ -44,6 +44,14 @@
 		addBody: function(body){
 
 			this.bodies.push(body);
+		},
+
+		invadersBelow: function(invader){
+			return this.bodies.filter(function(b){
+				return b instanceof Invader && 
+				b.center.y > invader.center.y &&
+				b.center.x - invader.center.x < invader.size.x;
+			}).length > 0;
 		}
 	};
 
@@ -112,6 +120,12 @@
 			
 			this.center.x += this.speedX;
 			this.patrolX += this.speedX;
+			if(Math.random() > .995 && !this.game.invadersBelow(this)) {
+				var bullet = new Bullet({ x: this.center.x, y: this.center.y + this.size.x * 2},
+					{ x: Math.random() - .05, y: 2});
+
+				this.game.addBody(bullet) 
+			}
 		}	
 	};
 
@@ -123,7 +137,7 @@
 			invaders.push(new Invader(game, { x: x, y: y}));
 		}
 		return invaders
-	}
+	};
 	var drawRect = function(screen, body) {
 		screen.fillRect(body.center.x - body.size.x / 2,
 						body.center.y - body.size.y / 2, 
